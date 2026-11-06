@@ -4,54 +4,158 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Soria Moria</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;800&family=EB+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<!-- crossorigin lets the image export embed these fonts -->
+<link crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;800&family=EB+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 <style>
   :root {
-    --red: #a3242a;
-    --red-dark: #4d0a0d;
-    --gold-hi: #fff1c4;
-    --gold: #e0b468;
-    --gold-lo: #8a5a22;
-    --parch: #f0dfbd;
-    --night: #120d0b;
-    --gold-metal: linear-gradient(180deg, #ecd3a0 0%, #d4a85e 42%, #a8783a 60%, #c99a55 82%, #e3c792 100%);
     --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
+    --stars:
+      radial-gradient(1px 1px at 20px 30px, #fff9, transparent) 0 0 / 200px 200px,
+      radial-gradient(1px 1px at 90px 120px, #fff7, transparent) 0 0 / 200px 200px,
+      radial-gradient(1.5px 1.5px at 150px 60px, #ffe9b8aa, transparent) 0 0 / 200px 200px,
+      radial-gradient(1px 1px at 60px 170px, #fff6, transparent) 0 0 / 200px 200px,
+      radial-gradient(1px 1px at 180px 190px, #fff5, transparent) 0 0 / 200px 200px;
   }
+
+  /* ================= THEMES =================
+     Each theme only sets these variables. Add one by copying a block. */
+  .poster, .poster[data-theme="night"] {
+    --bg: var(--stars),
+          radial-gradient(ellipse at 50% 0%, rgba(224,180,104,.18), transparent 50%),
+          linear-gradient(#141a2e, #0a0c14 60%, #07080d);
+    --metal: linear-gradient(180deg, #ecd3a0 0%, #d4a85e 42%, #a8783a 60%, #c99a55 82%, #e3c792 100%);
+    --accent: #e0b468;      /* dividers, numbers */
+    --accent-hi: #fff1c4;   /* card titles, "all we ask" */
+    --edge: #8a5a22;        /* borders */
+    --text: #f0dfbd;
+    --muted: #a99a85;
+    --card: linear-gradient(160deg, #1f2740, #10141f);
+    --card-inset: #0c0f18;
+    --glow: rgba(163,36,42,.22);
+    --shadow: #070a14;
+    --icons: 2;             /* Torn icon colour row: 0 green, 1 grey, 2 red, 3 teal */
+  }
+  .poster[data-theme="contrast"] {
+    --bg: var(--stars),
+          radial-gradient(ellipse at 50% 0%, rgba(255,210,130,.14), transparent 50%),
+          linear-gradient(#0c1120, #05070c 60%, #020305);
+    --metal: linear-gradient(180deg, #fff8e1 0%, #ffe2a0 38%, #f0b95c 58%, #ffd98a 82%, #fff1c9 100%);
+    --accent: #ffcf7a;
+    --accent-hi: #ffffff;
+    --edge: #c08a3e;
+    --text: #fff8ec;
+    --muted: #d6c9b4;
+    --card: linear-gradient(160deg, #18203a, #090c16);
+    --card-inset: #04060b;
+    --glow: rgba(255,190,90,.10);
+    --shadow: #000;
+    --icons: 2;
+  }
+  .poster[data-theme="ember"] {
+    --bg: var(--noise),
+          radial-gradient(ellipse at 50% 0%, #3b1a14, transparent 55%),
+          linear-gradient(#1f1512, #0d0908);
+    --metal: linear-gradient(180deg, #fff1c4 0%, #e0b468 45%, #b07a35 58%, #e0b468 80%, #fff1c4 100%);
+    --accent: #e0b468;
+    --accent-hi: #fff1c4;
+    --edge: #8a5a22;
+    --text: #f0dfbd;
+    --muted: #b8957a;
+    --card: linear-gradient(160deg, #3a1d17, #1c100d);
+    --card-inset: #1a0e0b;
+    --glow: rgba(163,36,42,.28);
+    --shadow: #3a0c08;
+    --icons: 2;
+  }
+  .poster[data-theme="frost"] {
+    --bg: var(--stars),
+          radial-gradient(ellipse at 50% 0%, rgba(150,200,230,.14), transparent 50%),
+          linear-gradient(#0f1d2a, #08111a 60%, #04080c);
+    --metal: linear-gradient(180deg, #f4f9fc 0%, #cfdfea 40%, #8aa6bb 60%, #bcd0de 82%, #eef5f9 100%);
+    --accent: #a9c9de;
+    --accent-hi: #eef6fb;
+    --edge: #4d6b80;
+    --text: #e3edf3;
+    --muted: #8ea4b3;
+    --card: linear-gradient(160deg, #18293a, #0a131c);
+    --card-inset: #060c12;
+    --glow: rgba(90,170,210,.14);
+    --shadow: #02060a;
+    --icons: 3;
+  }
+  .poster[data-theme="forest"] {
+    --bg: var(--noise),
+          radial-gradient(ellipse at 50% 0%, rgba(160,190,90,.14), transparent 55%),
+          linear-gradient(#122119, #08110c 60%, #040805);
+    --metal: linear-gradient(180deg, #f0dcae 0%, #d7b26a 42%, #9c7a38 60%, #c9a35b 82%, #ead19c 100%);
+    --accent: #d6b46c;
+    --accent-hi: #f5ead0;
+    --edge: #6b6a2e;
+    --text: #e9e4d2;
+    --muted: #a3a58a;
+    --card: linear-gradient(160deg, #1b3125, #0b1610);
+    --card-inset: #07100b;
+    --glow: rgba(130,180,60,.14);
+    --shadow: #030805;
+    --icons: 0;
+  }
+
+  /* ================= PAGE ================= */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--night);
+    background: #0b0a0c;
     display: flex;
-    justify-content: center;
-    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
     font-family: 'EB Garamond', serif;
-    color: var(--parch);
   }
+
+  /* Toolbar (not part of the exported image) */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    font-family: system-ui, sans-serif;
+    font-size: 14px;
+  }
+  .toolbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid #3a3a44;
+    border-radius: 999px;
+    background: #1a1a20;
+    color: #ddd;
+    cursor: pointer;
+  }
+  .toolbar button:hover { border-color: #888; }
+  .toolbar button[aria-pressed="true"] { border-color: #e0b468; color: #fff; }
+  .toolbar .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #fff3;
+  }
+  .toolbar .sep { width: 1px; background: #3a3a44; margin: 0 4px; }
+  .toolbar .status { align-self: center; color: #aaa; min-width: 9em; }
+
+  /* ================= POSTER ================= */
   .poster {
     width: 100%;
     max-width: 1024px;
-    background:
-      var(--noise),
-      radial-gradient(ellipse at 50% 0%, #3b1a14, transparent 55%),
-      linear-gradient(#1f1512, #0d0908);
-    border: 1px solid var(--gold-lo);
-    box-shadow: 0 0 60px #000, 0 0 0 6px #0d0908, 0 0 0 7px #3a2716;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--edge);
+    box-shadow: 0 0 60px #000;
     overflow: hidden;
   }
-
-  /* Night-sky background */
-  .poster.night {
-    background:
-      radial-gradient(1px 1px at 20px 30px, #fff9, transparent),
-      radial-gradient(1px 1px at 90px 120px, #fff7, transparent),
-      radial-gradient(1.5px 1.5px at 150px 60px, #ffe9b8aa, transparent),
-      radial-gradient(1px 1px at 60px 170px, #fff6, transparent),
-      radial-gradient(1px 1px at 180px 190px, #fff5, transparent),
-      radial-gradient(ellipse at 50% 0%, rgba(224,180,104,.18), transparent 50%),
-      linear-gradient(#141a2e, #0a0c14 60%, #07080d);
-    background-size: 200px 200px, 200px 200px, 200px 200px, 200px 200px, 200px 200px, auto, auto;
-  }
   .metal {
-    background: var(--gold-metal);
+    background: var(--metal);
     -webkit-background-clip: text;
             background-clip: text;
     color: transparent;
@@ -62,7 +166,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    color: var(--gold);
+    color: var(--accent);
     font-family: 'Cinzel', serif;
     font-weight: 700;
     letter-spacing: .35em;
@@ -72,9 +176,9 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold));
+    background: linear-gradient(90deg, transparent, var(--accent));
   }
-  .divider::after { background: linear-gradient(90deg, var(--gold), transparent); }
+  .divider::after { background: linear-gradient(90deg, var(--accent), transparent); }
 
   /* ---------- Header ---------- */
   header.top {
@@ -82,13 +186,15 @@
     padding: 5% 6% 3%;
   }
   header.top .divider { font-size: clamp(12px, 2vw, 18px); }
-  header.top h1 {
+  .headline {
     font-family: 'Cinzel Decorative', serif;
     font-weight: 900;
+    filter: drop-shadow(0 2px 0 var(--shadow)) drop-shadow(0 4px 10px rgba(0,0,0,.6));
+  }
+  header.top h1 {
     font-size: clamp(40px, 10.5vw, 108px);
     line-height: 1.1;
     margin: .1em 0 .05em;
-    filter: drop-shadow(0 2px 0 #070a14) drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 24px rgba(212,168,94,.15));
   }
 
   /* ---------- Scene ---------- */
@@ -123,9 +229,12 @@
   }
   .card {
     padding: 20px;
-    background: var(--noise), linear-gradient(160deg, #1f2740, #10141f);
-    border: 1px solid var(--gold-lo);
-    box-shadow: inset 0 0 0 4px #0c0f18, inset 0 0 0 5px rgba(224,180,104,.3), 0 10px 24px rgba(0,0,0,.6);
+    background: var(--noise), var(--card);
+    border: 1px solid var(--edge);
+    box-shadow:
+      inset 0 0 0 4px var(--card-inset),
+      inset 0 0 0 5px color-mix(in srgb, var(--accent) 30%, transparent),
+      0 10px 24px rgba(0,0,0,.6);
   }
   .card h3 {
     display: flex;
@@ -136,41 +245,30 @@
     font-weight: 800;
     font-size: 22px;
     letter-spacing: .05em;
-    color: var(--gold-hi);
+    color: var(--accent-hi);
   }
-  .medal {
-    flex: 0 0 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #c73a3f, var(--red-dark));
-    border: 2px solid var(--gold);
-    color: var(--gold-hi);
-  }
-  .medal svg { width: 22px; height: 22px; }
-  /* Torn's branch icon sheet: 8 columns x 4 rows (green, grey, red, teal).
-     Pick an icon with --col (0-7) and a colour with --row (0-3). */
+  /* Torn's branch icon sheet: 8 columns x 4 rows.
+     Each card picks its icon with --col (0-7); the theme picks the colour row. */
   .branch {
     flex: 0 0 90px;
     height: 90px;
     margin: -16px -10px -16px -14px;   /* sheet cells have padding around each icon */
     background: url('img/tier_unlocks.svg') 0 0 / 800% 400% no-repeat;
-    background-position: calc(var(--col) * 100% / 7) calc(var(--row, 2) * 100% / 3);
+    background-position: calc(var(--col) * 100% / 7) calc(var(--icons) * 100% / 3);
   }
   .stat {
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 10px 0;
-    border-top: 1px solid rgba(224,180,104,.2);
+    border-top: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
   }
   .stat b {
     flex: 0 0 74px;
     font-family: 'Cinzel', serif;
     font-weight: 800;
     font-size: 26px;
-    color: var(--gold);
+    color: var(--accent);
     text-align: right;
   }
   .stat span { font-size: 19px; line-height: 1.2; }
@@ -179,32 +277,31 @@
     font-family: 'Cinzel', serif;
     font-size: 12px;
     letter-spacing: .08em;
-    color: #a99a85;
+    color: var(--muted);
   }
 
-  /* ---------- The Pact: an oath, not a list ---------- */
+  /* ---------- The Pact ---------- */
   .pact {
-    position: relative;
     text-align: center;
     padding: 2% 0 1%;
-    background: radial-gradient(ellipse at 50% 50%, rgba(163,36,42,.22), transparent 70%);
+    background: radial-gradient(ellipse at 50% 50%, var(--glow), transparent 70%);
   }
   .pact .label {
     font-family: 'Cinzel', serif;
     font-weight: 700;
     font-size: 13px;
     letter-spacing: .5em;
-    color: #a99a85;
+    color: var(--muted);
     margin-bottom: 18px;
   }
   .vows {
     display: grid;
-    grid-template-columns: repeat(var(--cols), 1fr);
-    max-width: calc(var(--cols) * 240px);
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 720px;
     margin: 0 auto;
   }
   .vows div { padding: 6px 12px 18px; }
-  .vows div + div { border-left: 1px solid rgba(224,180,104,.25); }
+  .vows div + div { border-left: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
   .vows div:nth-child(3n+1) { border-left: 0; }
   .vows b {
     display: block;
@@ -213,11 +310,11 @@
     font-size: clamp(22px, 3.6vw, 34px);
     letter-spacing: .04em;
   }
-  .vows i { font-size: 18px; color: var(--parch); opacity: .8; }
+  .vows i { font-size: 18px; opacity: .8; }
   @media (max-width: 640px) {
-    .vows.grant { --cols: 2 !important; }
-    .vows.grant div:nth-child(3n+1) { border-left: 1px solid rgba(224,180,104,.25); }
-    .vows.grant div:nth-child(odd) { border-left: 0; }
+    .vows { grid-template-columns: repeat(2, 1fr); }
+    .vows div:nth-child(3n+1) { border-left: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+    .vows div:nth-child(odd) { border-left: 0; }
   }
 
   /* "All we ask": one quiet line under the grant */
@@ -231,15 +328,15 @@
     max-width: 100%;
     margin: 26px auto 0;
     padding: 14px 32px;
-    border-top: 1px solid rgba(224,180,104,.45);
-    border-bottom: 1px solid rgba(224,180,104,.45);
+    border-top: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
     font-family: 'Cinzel', serif;
     font-weight: 700;
     font-size: clamp(16px, 2.4vw, 22px);
-    color: var(--gold-hi);
+    color: var(--accent-hi);
   }
   .ask .label { margin: 0; }
-  .ask em { font-style: normal; color: var(--gold); }
+  .ask em { font-style: normal; color: var(--accent); }
 
   /* ---------- Call to action ---------- */
   .cta {
@@ -250,19 +347,29 @@
   .cta .divider:empty { gap: 0; }
   .cta p {
     margin: .25em 0;
-    font-family: 'Cinzel Decorative', serif;
-    font-weight: 900;
     font-size: clamp(30px, 6.4vw, 64px);
-    filter: drop-shadow(0 2px 0 #070a14) drop-shadow(0 4px 10px rgba(0,0,0,.6)) drop-shadow(0 0 24px rgba(212,168,94,.15));
   }
 </style>
 </head>
 <body>
-<div class="poster night">
+
+<nav class="toolbar" aria-label="Poster controls">
+  <button data-theme="night"><span class="swatch" style="background:#141a2e"></span>Night</button>
+  <button data-theme="contrast"><span class="swatch" style="background:#ffcf7a"></span>High contrast</button>
+  <button data-theme="ember"><span class="swatch" style="background:#5a2216"></span>Ember</button>
+  <button data-theme="frost"><span class="swatch" style="background:#8aa6bb"></span>Frost</button>
+  <button data-theme="forest"><span class="swatch" style="background:#1b3125"></span>Forest</button>
+  <span class="sep"></span>
+  <button id="copy">Copy as image</button>
+  <button id="download">Download PNG</button>
+  <span class="status" id="status" role="status"></span>
+</nav>
+
+<div class="poster" id="poster" data-theme="night">
 
   <header class="top">
     <div class="divider">THE ASKELADS</div>
-    <h1 class="metal">Soria Moria</h1>
+    <h1 class="metal headline">Soria Moria</h1>
   </header>
 
   <div class="scene" role="img" aria-label="A young adventurer looking towards Soria Moria castle"></div>
@@ -293,7 +400,7 @@
 
     <section class="pact">
       <p class="label">WE GRANT</p>
-      <div class="vows grant" style="--cols: 3">
+      <div class="vows">
         <div><b class="metal">Leadership</b><i>experienced and present</i></div>
         <div><b class="metal">Guidance</b><i>hands-on, one to one</i></div>
         <div><b class="metal">Scripts</b><i>tools that save time</i></div>
@@ -310,11 +417,67 @@
 
     <div class="cta">
       <div class="divider">JOIN US</div>
-      <p class="metal">Become a Ladd Today!</p>
+      <p class="metal headline">Become a Ladd Today!</p>
       <div class="divider"></div>
     </div>
   </main>
 
 </div>
+
+<script>
+  const poster = document.getElementById('poster');
+  const status = document.getElementById('status');
+  const themeButtons = document.querySelectorAll('[data-theme]:not(.poster)');
+
+  // ---- theme switching (remembered per browser) ----
+  function setTheme(name) {
+    poster.dataset.theme = name;
+    themeButtons.forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === name));
+    try { localStorage.setItem('poster-theme', name); } catch {}
+  }
+  themeButtons.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.theme)));
+  let saved = null;
+  try { saved = localStorage.getItem('poster-theme'); } catch {}
+  setTheme(saved && document.querySelector(`button[data-theme="${saved}"]`) ? saved : 'night');
+
+  // ---- export as image ----
+  function say(text) { status.textContent = text; }
+
+  function renderPng() {
+    if (location.protocol === 'file:') {
+      return Promise.reject(new Error('Open the page through a web server (e.g. GitHub Pages) to export it as an image.'));
+    }
+    // ponytail: exports at the on-screen width; open on a desktop browser for the full 1024px version
+    return htmlToImage.toBlob(poster, { pixelRatio: 2 });
+  }
+
+  document.getElementById('copy').addEventListener('click', async () => {
+    say('Rendering…');
+    try {
+      // Pass the promise straight into ClipboardItem so Safari keeps the click's permission.
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': renderPng() })]);
+      say('Copied ✓');
+    } catch (err) {
+      say(err.message.includes('web server') ? err.message : 'Copy failed, use Download instead');
+      console.error(err);
+    }
+  });
+
+  document.getElementById('download').addEventListener('click', async () => {
+    say('Rendering…');
+    try {
+      const blob = await renderPng();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `soria-moria-${poster.dataset.theme}.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      say('Downloaded ✓');
+    } catch (err) {
+      say(err.message);
+      console.error(err);
+    }
+  });
+</script>
 </body>
 </html>
