@@ -154,8 +154,7 @@
   <button data-theme="frost"><span class="swatch" style="background:#8aa6bb"></span>Frost</button>
   <button data-theme="forest"><span class="swatch" style="background:#1b3125"></span>Forest</button>
   <span class="sep"></span>
-  <button id="download1">Download 400×100</button>
-  <button id="download2">Download 800×200</button>
+  <button id="download">Download PNG (400×100)</button>
   <a href="./">Poster →</a>
   <span class="status" id="status" role="status"></span>
 </nav>
@@ -220,18 +219,18 @@
   // ---- export ----
   function say(text) { status.textContent = text; }
 
-  async function download(pixelRatio) {
+  async function download() {
     if (location.protocol === 'file:') {
       say('Open the page through a web server (e.g. GitHub Pages) to export it.');
       return;
     }
     say('Rendering…');
     try {
-      // Export the un-zoomed copy so the image is exactly 400x100 (or 2x)
-      const blob = await htmlToImage.toBlob(copy, { pixelRatio });
+      // Export the un-zoomed copy at pixelRatio 1: exactly 400x100, as Torn requires
+      const blob = await htmlToImage.toBlob(copy, { pixelRatio: 1 });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `soria-moria-banner-${copy.dataset.theme}${pixelRatio > 1 ? '@2x' : ''}.png`;
+      a.download = `soria-moria-banner-${copy.dataset.theme}.png`;
       a.click();
       URL.revokeObjectURL(a.href);
       say('Downloaded ✓');
@@ -240,8 +239,7 @@
       console.error(err);
     }
   }
-  document.getElementById('download1').addEventListener('click', () => download(1));
-  document.getElementById('download2').addEventListener('click', () => download(2));
+  document.getElementById('download').addEventListener('click', download);
 </script>
 </body>
 </html>

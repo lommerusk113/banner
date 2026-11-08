@@ -52,6 +52,49 @@
   .toolbar .sep { width: 1px; background: #3a3a44; margin: 0 4px; }
   .toolbar .status { align-self: center; color: #aaa; min-width: 9em; }
 
+  /* Perk editor (not part of the exported image) */
+  .editor {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 12px;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: #ccc;
+  }
+  .editor fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 12px 10px;
+    border: 1px solid #3a3a44;
+    border-radius: 8px;
+  }
+  .editor legend { padding: 0 6px; color: #e0b468; font-weight: 600; }
+  .editor label { display: flex; flex-direction: column; gap: 4px; }
+  .editor small { color: #888; }
+  .editor input {
+    width: 72px;
+    padding: 5px 8px;
+    border: 1px solid #3a3a44;
+    border-radius: 6px;
+    background: #1a1a20;
+    color: #fff;
+    font: inherit;
+  }
+  .editor input:focus { outline: none; border-color: #e0b468; }
+  .editor button {
+    padding: 8px 14px;
+    border: 1px solid #3a3a44;
+    border-radius: 999px;
+    background: #1a1a20;
+    color: #ddd;
+    font: inherit;
+    cursor: pointer;
+  }
+  .editor button:hover { border-color: #888; }
+
   /* ================= POSTER ================= */
   .poster {
     width: 100%;
@@ -274,6 +317,27 @@
   <span class="status" id="status" role="status"></span>
 </nav>
 
+<!-- Perk editor (not part of the exported image). Level 0 hides a perk. -->
+<form class="editor" id="editor" aria-label="Faction perk levels">
+  <fieldset>
+    <legend>Toleration</legend>
+    <label>Overdosing <input type="number" name="overdose"></label>
+    <label>Addiction <input type="number" name="addiction"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Steadfast</legend>
+    <label>Strength <input type="number" name="strength"></label>
+    <label>Defense <input type="number" name="defense"></label>
+    <label>Speed <input type="number" name="speed"></label>
+    <label>Dexterity <input type="number" name="dexterity"></label>
+  </fieldset>
+  <fieldset>
+    <legend>Excursion</legend>
+    <label>Travel capacity <input type="number" name="travel"></label>
+  </fieldset>
+  <button type="button" id="reset">Reset</button>
+</form>
+
 <div class="poster themed" id="poster" data-theme="night">
 
   <header class="top">
@@ -286,22 +350,18 @@
   <main>
     <h2 class="divider"><span class="metal">Faction Perks</span></h2>
 
+    <!-- Stat rows are filled in from the perk editor above the poster -->
     <div class="perks">
-      <article class="card">
+      <article class="card" data-card="toleration">
         <h3><span class="branch" style="--col:3"></span>Toleration</h3>
-        <div class="stat"><b>−21%</b><span>Overdose risk<small>Overdosing VII</small></span></div>
-        <div class="stat"><b>−50%</b><span>Addiction gain<small>Addiction XXV</small></span></div>
       </article>
 
-      <article class="card">
+      <article class="card" data-card="steadfast">
         <h3><span class="branch" style="--col:5"></span>Steadfast</h3>
-        <div class="stat"><b>+7%</b><span>Speed gym gains<small>Speed Training VII</small></span></div>
-        <div class="stat"><b>+7%</b><span>Defense gym gains<small>Defense Training VII</small></span></div>
       </article>
 
-      <article class="card">
+      <article class="card" data-card="excursion">
         <h3><span class="branch" style="--col:4"></span>Excursion</h3>
-        <div class="stat"><b>+2</b><span>Travel capacity<small>Travel Capacity II</small></span></div>
       </article>
     </div>
 
@@ -348,6 +408,89 @@
   let saved = null;
   try { saved = localStorage.getItem('poster-theme'); } catch {}
   setTheme(saved && document.querySelector(`button[data-theme="${saved}"]`) ? saved : 'night');
+
+  // ---- perks (edited above the poster, remembered per browser) ----
+  // per = effect per level; max = highest level Torn allows. Adjust here if Torn changes them.
+  const PERKS = {
+    overdose:  { card: 'toleration', per: -3, max: 10, unit: '%', label: 'Overdose risk',      name: 'Overdosing' },
+    addiction: { card: 'toleration', per: -2, max: 25, unit: '%', label: 'Addiction gain',     name: 'Addiction' },
+    strength:  { card: 'steadfast',  per: 1,  max: 20, unit: '%', label: 'Strength gym gains',  name: 'Strength Training' },
+    defense:   { card: 'steadfast',  per: 1,  max: 20, unit: '%', label: 'Defense gym gains',   name: 'Defense Training' },
+    speed:     { card: 'steadfast',  per: 1,  max: 20, unit: '%', label: 'Speed gym gains',     name: 'Speed Training' },
+    dexterity: { card: 'steadfast',  per: 1,  max: 20, unit: '%', label: 'Dexterity gym gains', name: 'Dexterity Training' },
+    travel:    { card: 'excursion',  per: 1,  max: 10, unit: '',  label: 'Travel capacity',     name: 'Travel Capacity' },
+  };
+  const DEFAULT_LEVELS = { overdose: 7, addiction: 25, strength: 0, defense: 7, speed: 7, dexterity: 0, travel: 2 };
+  const editor = document.getElementById('editor');
+
+  function roman(n) {
+    const table = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+    let out = '';
+    for (const [value, numeral] of table) while (n >= value) { out += numeral; n -= value; }
+    return out;
+  }
+
+  function el(tag, text) {
+    const node = document.createElement(tag);
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function renderPerks(levels) {
+    document.querySelectorAll('[data-card]').forEach(card => {
+      card.querySelectorAll('.stat').forEach(row => row.remove());
+      for (const [key, perk] of Object.entries(PERKS)) {
+        const level = levels[key];
+        if (perk.card !== card.dataset.card || !level) continue;
+        const value = level * perk.per;
+        const row = el('div');
+        row.className = 'stat';
+        const label = el('span', perk.label);
+        label.append(el('small', `${perk.name} ${roman(level)}`));
+        row.append(el('b', `${value < 0 ? '−' : '+'}${Math.abs(value)}${perk.unit}`), label);
+        card.append(row);
+      }
+      card.hidden = !card.querySelector('.stat');   // no perks in this branch: drop the card
+    });
+  }
+
+  function readEditor() {
+    const levels = {};
+    for (const [key, perk] of Object.entries(PERKS)) {
+      const n = Math.round(Number(editor.elements[key].value));
+      levels[key] = Number.isFinite(n) ? Math.min(Math.max(n, 0), perk.max) : 0;
+    }
+    return levels;
+  }
+
+  function fillEditor(levels) {
+    for (const key of Object.keys(PERKS)) editor.elements[key].value = levels[key];
+  }
+
+  for (const [key, perk] of Object.entries(PERKS)) {
+    const input = editor.elements[key];
+    Object.assign(input, { min: 0, max: perk.max, step: 1 });
+    input.title = `Level 0–${perk.max} (0 hides it)`;
+    input.after(el('small', `${perk.per > 0 ? '+' : '−'}${Math.abs(perk.per)}${perk.unit} / level, max ${perk.max}`));
+  }
+
+  editor.addEventListener('input', () => {
+    const levels = readEditor();
+    renderPerks(levels);
+    try { localStorage.setItem('poster-perks', JSON.stringify(levels)); } catch {}
+  });
+  // Snap out-of-range values back into range when leaving a field
+  editor.addEventListener('change', () => fillEditor(readEditor()));
+  document.getElementById('reset').addEventListener('click', () => {
+    fillEditor(DEFAULT_LEVELS);
+    editor.dispatchEvent(new Event('input'));
+  });
+
+  let savedLevels = null;
+  try { savedLevels = JSON.parse(localStorage.getItem('poster-perks')); } catch {}
+  const startLevels = { ...DEFAULT_LEVELS, ...savedLevels };
+  fillEditor(startLevels);
+  renderPerks(readEditor());
 
   // ---- export as image ----
   function say(text) { status.textContent = text; }
